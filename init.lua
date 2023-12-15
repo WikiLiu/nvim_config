@@ -52,6 +52,11 @@ return {
     servers = {
       -- "pyright"
     },
+    ["server-settings"] = {
+      clangd = {
+        capabilities = { offsetEncoding = "utf-8" },
+      },
+    },
   },
 
   -- Configure require("lazy").setup() options
@@ -83,8 +88,3 @@ return {
     -- }
   end,
 }
-
-
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities.offsetEncoding = { "utf-16" }
-require("lspconfig").clangd.setup({ capabilities = capabilities })
