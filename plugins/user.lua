@@ -54,5 +54,9 @@ return {
       })
       monokai.load()
     end,
-  }
+  },
+{
+    "preservim/tagbar",
+    lazy = false,
+}
 }
