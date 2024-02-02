@@ -27,14 +27,37 @@ return {
       end,
       desc = "Pick to close",
     },
+	["<leader>or"] = {
+	":OverseerRun<cr>",
+	desc = "Overseer Run Task",
+	},
+	["<leader><F7>"] = {
+	":ToggleTerm size= 10 direction=horizontal<cr>",
+	desc = "Term horizontal",
+	},
+	
+	["<leader>fg"] = {
+		":lua require('telescope').extensions.live_grep_args.live_grep_args()<cr>",
+		desc = "Grep args",
+	},
+
     -- tables with the `name` key will be registered with which-key if it's installed
     -- this is useful for naming menus
     ["<leader>b"] = { name = "Buffers" },
+    ["<F8>"] = { ":Tagbar<cr>", desc = "Open/Close tagbar" },
     -- quick save
     -- ["<C-s>"] = { ":w!<cr>", desc = "Save File" },  -- change description but the same command
+	
   },
   t = {
     -- setting a mapping to false will disable it
     -- ["<esc>"] = false,
   },
+  i = {
+    ["<C-Down>"] = require('telescope.actions').cycle_history_next,
+    ["<C-Up>"] = require('telescope.actions').cycle_history_prev,
+  },
+
+    
+
 }
