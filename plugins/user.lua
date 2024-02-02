@@ -101,5 +101,4 @@ return {
 		end,
 	},
 	  { "kkharji/sqlite.lua" },
-  { "nvim-telescope/telescope-smart-history.nvim", dependencies = { "tami5/sqlite.lua" } },
 }
