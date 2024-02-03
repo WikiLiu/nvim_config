@@ -41,12 +41,30 @@ return {
 		desc = "Grep args",
 	},
 
+	["<leader>fi"] = {
+      function()
+   	  local node = require('nvim-tree.lib').get_node_at_cursor()
+  	  if not node then return end
+  	  require('telescope.builtin').live_grep({search_dirs = {node.absolute_path}})
+      end,
+      desc = "Find word in current folder",
+	},
+	["<leader>fd"] = {
+		"<cmd>Telescope dir live_grep<CR>",
+		desc = "Grep in directory",
+	},
+	["<leader>pd"] = {
+		"<cmd>FileInDirectory<CR>",
+		desc = "File in directory",
+	},
+
     -- tables with the `name` key will be registered with which-key if it's installed
     -- this is useful for naming menus
     ["<leader>b"] = { name = "Buffers" },
     ["<F8>"] = { ":Tagbar<cr>", desc = "Open/Close tagbar" },
     -- quick save
     -- ["<C-s>"] = { ":w!<cr>", desc = "Save File" },  -- change description but the same command
+
 	
   },
   t = {
