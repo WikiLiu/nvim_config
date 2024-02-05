@@ -86,6 +86,7 @@ config = {
     --     ["~/%.config/foo/.*"] = "fooscript",
     --   },
     -- }
+
   end,
 }
 

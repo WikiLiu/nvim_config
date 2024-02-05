@@ -26,5 +26,6 @@ return {
       show_preview = true,
     })
   end,
+	lazy=false,
 },
 }
