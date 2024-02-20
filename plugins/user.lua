@@ -11,7 +11,7 @@ return {
 	-- },
 	{
 		"preservim/tagbar",
-		lazy = true,
+		lazy = false,
 	},
 	  { "kkharji/sqlite.lua" },
 {

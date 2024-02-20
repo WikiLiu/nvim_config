@@ -13,7 +13,7 @@ return {
       -- null_ls.builtins.formatting.prettier,
 -- CPP
       null_ls.builtins.diagnostics.cpplint.with({
-        args = { "--linelength=100", "--filter=-whitespace/tab", "$FILENAME", },
+        args = { "--linelength=120", "--filter=-whitespace/tab,-whitespace/braces,-readability/casting,-whitespace/parens,-whitespace/braces", "$FILENAME", },
       }),
     }
     return config -- return final config table
