@@ -108,7 +108,18 @@ return {
     	["<F8>"] = { ":Tagbar<cr>", desc = "Open/Close tagbar" },
     	-- quick save
     	-- ["<C-s>"] = { ":w!<cr>", desc = "Save File" },  -- change description but the same command
+		["<F2>"] = {
+			function ()
+				local register_value = vim.fn.getreg('l')
+				print(register_value)
+				vim.notify(register_value,'info', {
+  					title = "base seach dir",
+      						}) 
+			end,
+			desc = "show search base directory",
+		},
 
+  	},
 
   	},
   	t = {
