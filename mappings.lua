@@ -118,10 +118,19 @@ return {
 			end,
 			desc = "show search base directory",
 		},
+		["<leader><F2>"] = {
+			function ()
+				local register_value = vim.fn.getreg('l')
+				print(register_value)
+				vim.notify(register_value,'info', {
+  					title = "base seach dir",
+      						}) 
+			end,
+			desc = "modified search base directory",
+		},
 
   	},
 
-  	},
   	t = {
     	-- setting a mapping to false will disable it
     	-- ["<esc>"] = false,
