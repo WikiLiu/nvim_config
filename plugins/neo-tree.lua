@@ -3,8 +3,11 @@ return {
     opts = function(_, opts)
         opts.commands.copy_locate_path = function(state)
             local node = state.tree:get_node()
+
             local path = node:get_id()
             path = node.type == "directory" and path or vim.fn.fnamemodify(path, ":h")
+	    vim.fn.setreg('l', path)
+	    path = vim.fn.fnamemodify(path, ":~:.:h")
             
             -- 设置寄存器
             local register = '*'

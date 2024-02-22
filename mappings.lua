@@ -35,7 +35,18 @@ return {
 	":ToggleTerm size= 10 direction=horizontal<cr>",
 	desc = "Term horizontal",
 	},
-	
+	["<leader>fi"] = {
+      function()
+	  local path = vim.fn.getreg('l')
+		-- 检查 path 是否为空
+if path == nil or path == '' then
+    -- 如果 path 为空，则获取当前目录作为默认值
+    path = vim.fn.getcwd()
+end
+  	  require('telescope.builtin').live_grep({search_dirs = {path}})
+      end,
+      desc = "Find word in current folder",
+},
 	["<leader>fg"] = {
 		":lua require('telescope').extensions.live_grep_args.live_grep_args()<cr>",
 		desc = "Grep args",
@@ -48,7 +59,30 @@ return {
 		"<cmd>FileInDirectory<CR>",
 		desc = "File in directory",
 	},
-
+	["mm"] = {
+		":lua require('bookmarks').bookmark_toggle()<cr>",
+		desc = "add or remove bookmark at current line",
+	},
+	["mc"] = {
+		":lua require('bookmarks').bookmark_clean()<cr>",
+		desc = "clean all marks in local buffer",
+	},
+	["mi"] = {
+		":lua require('bookmarks').bookmark_ann()<cr>",
+		desc = "add or edit mark annotation at current line",
+	},
+	["mn"] = {
+		":lua require('bookmarks').bookmark_next()<cr>",
+		desc = "jump to next mark in local buffer",
+	},
+	["mp"] = {
+		":lua require('bookmarks').bookmark_prev()<cr>",
+		desc = "jump to previous mark in local buffer",
+	},
+	["ml"] = {
+		":lua require('bookmarks').bookmark_list()<cr>",
+		desc = "show marked file list in quickfix window",
+	},
     -- tables with the `name` key will be registered with which-key if it's installed
     -- this is useful for naming menus
     ["<leader>b"] = { name = "Buffers" },

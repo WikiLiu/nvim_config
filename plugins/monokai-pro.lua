@@ -7,6 +7,7 @@ return {
 		local monokai = require("monokai-pro")
 		monokai.setup({
 			transparent_background = false,
+			terminal_colors = true,
 			devicons = true,
 			filter = "spectrum", -- classic | octagon | pro | machine | ristretto | spectrum
 			day_night = {
@@ -38,20 +39,21 @@ return {
   			},-- "float_win", "toggleterm", "telescope", "which-key", "renamer", "neo-tree", "nvim-tree", "bufferline"
 			plugins = {
 				bufferline = {
-					underline_selected = true,
+					underline_selected = false,
 					underline_visible = false,
 					bold = false,
 				},
 				indent_blankline = {
 					context_highlight = "pro", -- default | pro
-					context_start_underline = true,
+					context_start_underline = false,
 				},
 			},
 			override = function(c)
 				return {
 					-- ColorColumn = { bg = c.base.dimmed3 },
-					-- ColorColumn = { bg =  "#3b3c35" },
+					-- ColorColumn = { bg =  "#272727" },
 					-- Mine
+					Normal = { bg = "#1c1c1c" },
 					DashboardRecent = { fg = c.base.magenta },
 					DashboardProject = { fg = c.base.blue },
 					DashboardConfiguration = { fg = c.base.white },
@@ -59,14 +61,13 @@ return {
 					DashboardLazy = { fg = c.base.cyan },
 					DashboardServer = { fg = c.base.yellow },
 					DashboardQuit = { fg = c.base.red },
-        			IndentBlanklineChar = { fg = c.base.dimmed4 },
 				}
 			end,
     		overridePalette = function(filter)
       			return {
         			-- dark2 = "#101014",
         			-- dark1 = "#16161E",
-        			background = "#012121",
+        			background = "#1c1c1c",
         			-- text = "#C0CAF5",
         			-- accent1 = "#f7768e",
         			-- accent2 = "#7aa2f7",
@@ -80,7 +81,7 @@ return {
         			-- dimmed4 = "#363b54",
         			-- dimmed5 = "#16161e",
       			}
-    		end
+    		end,
 		})
 		monokai.load()
 	end,
