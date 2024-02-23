@@ -111,7 +111,6 @@ return {
 		["<F2>"] = {
 			function ()
 				local register_value = vim.fn.getreg('l')
-				print(register_value)
 				vim.notify(register_value,'info', {
   					title = "base seach dir",
       						}) 
@@ -120,11 +119,7 @@ return {
 		},
 		["<leader><F2>"] = {
 			function ()
-				local register_value = vim.fn.getreg('l')
-				print(register_value)
-				vim.notify(register_value,'info', {
-  					title = "base seach dir",
-      						}) 
+			require("user.select-dir").get_dirs()
 			end,
 			desc = "modified search base directory",
 		},
