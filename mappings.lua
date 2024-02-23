@@ -38,27 +38,24 @@ return {
 
 		["<leader>fi"] = {
       		function()
-	  			local path = vim.fn.getreg('l')
-				-- 检查 path 是否为空
-				if path == nil or path == '' then
-    				-- 如果 path 为空，则获取当前目录作为默认值
-    				path = vim.fn.getcwd()
+				local base_search_dir = vim.g.base_search_dir
+				if base_search_dir==nil or base_search_dir == '' then
+					base_search_dir = require("user.select-dir").load_dir()
 				end
 	  			local word_under_cursor = vim.fn.expand("<cword>")
-  	   			require('telescope').extensions.live_grep_args.live_grep_args({default_text = word_under_cursor , search_dirs = {path}})
+  	   			require('telescope').extensions.live_grep_args.live_grep_args({default_text = word_under_cursor , search_dirs = {base_search_dir}})
       		end,
       		desc = "Find cursor word in path folder",
 		},
 
 		["<leader>fI"] = {
       		function()
-	  			local path = vim.fn.getreg('l')
-				-- 检查 path 是否为空
-				if path == nil or path == '' then
-    				-- 如果 path 为空，则获取当前目录作为默认值
-    				path = vim.fn.getcwd()
+				local base_search_dir = vim.g.base_search_dir
+
+				if base_search_dir==nil or base_search_dir == '' then
+					base_search_dir = require("user.select-dir").load_dir()
 				end
-  	  			require('telescope').extensions.live_grep_args.live_grep_args({search_dirs = {path}})
+  	  			require('telescope').extensions.live_grep_args.live_grep_args({search_dirs = {base_search_dir}})
       		end,
       		desc = "Find word in path folder",
 		},
@@ -110,16 +107,21 @@ return {
     	-- ["<C-s>"] = { ":w!<cr>", desc = "Save File" },  -- change description but the same command
 		["<F2>"] = {
 			function ()
-				local register_value = vim.fn.getreg('l')
-				vim.notify(register_value,'info', {
+				local base_search_dir = vim.g.base_search_dir
+
+				if base_search_dir==nil or base_search_dir == '' then
+					base_search_dir = require("user.select-dir").load_dir()
+
+				end
+				vim.notify(base_search_dir,'info', {
   					title = "base seach dir",
-      						}) 
+      			}) 
 			end,
 			desc = "show search base directory",
 		},
 		["<leader><F2>"] = {
 			function ()
-			require("user.select-dir").get_dirs()
+				require("user.select-dir").get_dirs()
 			end,
 			desc = "modified search base directory",
 		},
@@ -133,25 +135,24 @@ return {
 	v = {
 		["f"] = {
       		function()
-	  			local path = vim.fn.getreg('l')
-				-- 检查 path 是否为空
-				if path == nil or path == '' then
-    				-- 如果 path 为空，则获取当前目录作为默认值
-    				path = vim.fn.getcwd()
+				local base_search_dir = vim.g.base_search_dir
+
+				if base_search_dir==nil or base_search_dir == '' then
+					base_search_dir = require("user.select-dir").load_dir()
 				end
 
-  local _, ls, cs = unpack(vim.fn.getpos("v"))
-  local _, le, ce = unpack(vim.fn.getpos("."))
+  				local _, ls, cs = unpack(vim.fn.getpos("v"))
+  				local _, le, ce = unpack(vim.fn.getpos("."))
 
-  -- nvim_buf_get_text requires start and end args be in correct order
-  ls, le = math.min(ls, le), math.max(ls, le)
-  cs, ce = math.min(cs, ce), math.max(cs, ce)
-  local word_under_cursor = vim.api.nvim_buf_get_text(0, ls - 1, cs - 1, le - 1, ce, {})
+  				-- nvim_buf_get_text requires start and end args be in correct order
+  				ls, le = math.min(ls, le), math.max(ls, le)
+  				cs, ce = math.min(cs, ce), math.max(cs, ce)
+  				local word_under_cursor = vim.api.nvim_buf_get_text(0, ls - 1, cs - 1, le - 1, ce, {})
 	  			word_under_cursor = word_under_cursor[1] or ""
-  	   			require('telescope.builtin').live_grep({postfix = '  --regexp ', default_text = word_under_cursor , search_dirs = {path}})
--- remind in where seach
+  	   			require('telescope.builtin').live_grep({postfix = '  --regexp ', default_text = word_under_cursor , search_dirs = {base_search_dir}})
+				-- remind in where seach
       		end,
       		desc = "Find visual word in path folder",
 		},
-},
+	},
 }

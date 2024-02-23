@@ -7,11 +7,17 @@ return {
             local path = node:get_id()
             path = node.type == "directory" and path or vim.fn.fnamemodify(path, ":h")
 	    vim.fn.setreg('l', path)
+								require("user.select-dir").keep_dir(path)
+								vim.notify(path,'info', {
+  									title = "base seach dir",
+      							}) 
 	    path = vim.fn.fnamemodify(path, ":~:.:h")
             
             -- 设置寄存器
             local register = '*'
             vim.cmd('let @' .. register .. ' = ' .. vim.fn.string(path))
+
+
         end
 	opts.commands.grep_in_path = function(state)
             local node = state.tree:get_node()

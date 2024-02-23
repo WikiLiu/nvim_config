@@ -10,15 +10,50 @@ local flatten = vim.tbl_flatten
 
 local M = {}
 
+local project_root = vim.fn.getcwd()
+-- 将键值对持久化保存到文件
+M.keep_dir = function(base_search_dir)
+    local cache_dir = project_root .. '/.cache'
+    local cache_file = cache_dir .. '/base_search_dir.txt'
+    -- 确保 .cache 文件夹存在
+    vim.fn.mkdir(cache_dir, 'p')
+    local f = io.open(cache_file, 'a')
+    if f then
+        f:write(base_search_dir.. '\n')
+        f:close()
+    end
+end
+
+-- 从文件加载键值对
+M.load_dir = function()
+    local cache_dir = project_root .. '/.cache'
+    local cache_file = cache_dir .. '/base_search_dir.txt'
+    
+    -- 如果文件不存在或为空，则返回空字符串
+    if not vim.fn.filereadable(cache_file) then
+	print("kong de")
+        return vim.fn.getcwd()
+    end
+    
+    local lines = {}
+    for line in io.lines(cache_file) do
+        lines[#lines + 1] = line
+    end
+    if lines[#lines] == nil or lines[#lines] == '' then
+	return vim.fn.getcwd()
+end
+    return lines[#lines]
+end
+
+
+
 local opts_in = {
 	hidden = true,
 	debug = false,
 	no_ignore = false,
 	show_preview = true,
 }
-M.get_show = function()
-	print("hello")
-end
+
 M.get_dirs = function()
 
 	local find_command = (function()
@@ -105,7 +140,8 @@ M.get_dirs = function()
 								end
 								actions._close(prompt_bufnr, current_picker.initial_mode == "insert")
 								local root = vim.fn.getcwd()
-								if #dirs == 1 then vim.fn.setreg('l', root .. '/' ..dirs[1]) end
+								if #dirs == 1 then vim.g.base_search_dir = root .. '/' ..dirs[1] end
+								M.keep_dir(root .. '/' ..dirs[1])
 								vim.notify(root .. '/' ..dirs[1],'info', {
   									title = "base seach dir",
       							}) 
@@ -121,5 +157,7 @@ M.get_dirs = function()
 		end,
 	})
 end
+
+
 
 return M
