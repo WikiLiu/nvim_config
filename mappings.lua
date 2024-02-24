@@ -127,9 +127,15 @@ return {
 		},
 		["[<F2>"] = {
 			function ()
-				require("user.select-dir").dir_history()
+				require("user.select-dir").move_prev()
 			end,
-			desc = "History of search directory",
+			desc = "Prev of search directory",
+		},
+		["]<F2>"] = {
+			function ()
+				require("user.select-dir").move_next()
+			end,
+			desc = "Next of search directory",
 		},
 		["<leader>f<F2>"] = {
 			function ()

@@ -87,6 +87,9 @@ config = {
     --   },
     -- }
 
+	vim.cmd([[autocmd VimEnter * lua require('user.select-dir').load_dir()]])
+	vim.cmd([[autocmd VimLeave * lua require('user.select-dir').save_dir()]])
+
   end,
 }
 

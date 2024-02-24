@@ -11,74 +11,78 @@ local flatten = vim.tbl_flatten
 local M = {}
 -- 之后可以加上cache到vim内存中
 local project_root = vim.fn.getcwd()
--- 将键值对持久化保存到文件
-M.keep_dir = function(base_search_dir)
-    local cache_dir = project_root .. '/.cache'
-    local cache_file = cache_dir .. '/base_search_dir'
-    if not vim.fn.isdirectory(cache_dir) then
-        os.execute('mkdir -p ' .. cache_dir)
-    end   
-    -- 读取文件中的所有行
-    local existing_lines = {}
-    local file = io.open(cache_file, "r")
-    if file then
-        for line in file:lines() do
-            table.insert(existing_lines, line)
-        end
-        file:close()
-    end
+
+
+M.save_unique_string = function(str)
+    -- 查找字符串在集合中的索引
+	local newT = {}
+for key, value in pairs(vim.g.dir_cache) do
+    print(key, value)
+end 
+	for _ ,v in ipairs(vim.g.dir_cache) do
+		if v ~= str then
+			table.insert(newT , v)
+		end
+	end
+    table.insert(newT, str)
+	vim.g.dir_cache = newT
     
-    -- 检查新的 base_search_dir 是否已经存在
-    local is_duplicate = false
-    for i, line in ipairs(existing_lines) do
-        if line == base_search_dir then
-            is_duplicate = true
-            -- 删除原来的行
-            table.remove(existing_lines, i)
-            break
-        end
-    end
-    
-    -- 将新的 base_search_dir 插入到 existing_lines 中
-    table.insert(existing_lines, base_search_dir)
-    
-    -- 如果超过20行则删除第一行
-    if #existing_lines > 20 then
-        table.remove(existing_lines, 1)
-    end
-    
-    -- 写入文件
-    local f = io.open(cache_file, 'w')
-    if f then
-        for _, line in ipairs(existing_lines) do
-            f:write(line .. '\n')
-        end
-        f:close()
-        print("write" .. base_search_dir)
-    end
 end
 
 
--- 从文件加载键值对
+
+M.save_dir = function()
+	if vim.g.dir_cache == nil then
+		return
+	end
+    local cache_dir = project_root .. '/.cache'
+    local cache_file = cache_dir .. '/base_search_dir'
+
+    if not vim.fn.isdirectory(cache_dir) then
+        os.execute('mkdir -p ' .. cache_dir)
+    end
+    -- 创建 .cache 目录
+
+    -- 打开文件进行写入
+    local f = io.open(cache_file, 'w')
+    if f then
+        for _, dir in ipairs(vim.g.dir_cache) do
+            f:write(dir .. '\n')
+        end
+        f:close()
+    else
+        print('Failed to open cache file for writing.')
+    end
+end
+
 M.load_dir = function()
     local cache_dir = project_root .. '/.cache'
     local cache_file = cache_dir .. '/base_search_dir'
-    
-    -- 如果文件不存在或为空，则返回空字符串
-    if not vim.fn.filereadable(cache_file) then
+
+    -- 检查文件是否存在
+    local f = io.open(cache_file, "r")
+    if not f then
+        -- 文件不存在，返回当前工作目录
         return vim.fn.getcwd()
     end
+    f:close()  -- 关闭文件句柄
+
+    -- 文件存在且不为空，读取文件内容
     local lines = {}
     for line in io.lines(cache_file) do
+        print(line)
         lines[#lines + 1] = line
     end
-    if lines[#lines] == nil or lines[#lines] == '' then
-	return vim.fn.getcwd()
-end
-	vim.g.dir_history = lines
-	print(#vim.g.dir_history)
+
+    -- 如果文件内容为空，返回当前工作目录
+    if #lines == 0 or lines[#lines] == '' then
+        return vim.fn.getcwd()
+    end
+
+    vim.g.dir_cache = lines
     return lines[#lines]
 end
+
 
 
 local opts_in = {
@@ -175,12 +179,10 @@ M.get_dirs = function()
 								actions._close(prompt_bufnr, current_picker.initial_mode == "insert")
 								local root = vim.fn.getcwd()
 								if #dirs == 1 then vim.g.base_search_dir = root .. '/' ..dirs[1] end
-								M.keep_dir(root .. '/' ..dirs[1])
-								table.insert(vim.g.dir_history,vim.g.base_search_dir)
-								vim.fn.setreg('l', vim.g.base_search_dir)
+								M.save_unique_string(vim.g.base_search_dir)
 								vim.notify(root .. '/' ..dirs[1],'info', {
   									title = "base seach dir",
-      							}) 
+      							})
 							end)
 							return true
 						end,
@@ -198,7 +200,7 @@ end
 local has_telescope, telescope = pcall(require, "telescope")
 
 if not has_telescope then
-   error "This plugins requires nvim-telescope/telescope.nvim"
+   	error "This plugins requires nvim-telescope/telescope.nvim"
 end
 local finders = require "telescope.finders"
 local pickers = require "telescope.pickers"
@@ -208,25 +210,21 @@ local config = require("bookmarks.config").config
 local utils = require "telescope.utils"
 
 local function get_text()
-	    local cache_dir = project_root .. '/.cache'
-   	 local cache_file = cache_dir .. '/base_search_dir'
-	local file = io.open(cache_file, "r")
-	local dirHistory = {}  -- 创建一个空的 table 来存储目录历史记录   这个目录还是不好 应该加上root判断条件
-    if file then
-    	for line in file:lines() do
-		print(line)
-        	table.insert(dirHistory, 1, line)
-    	end
-    	return dirHistory
+    local dirHistory = {}
+
+    if vim.g.dir_cache ~= nil then
+        for _, line in pairs(vim.g.dir_cache) do
+            table.insert(dirHistory, 1, line)
+        end
+        return dirHistory
     else
-    	return nil
-end
+        return nil
+    end
 end
 
 M.dir_history = function(opts)
     opts = opts or {}
     local dirlist = get_text()
-
     local picker = pickers.new(opts, {
         prompt_title = "folder_history",
         finder = finders.new_table(dirlist),
@@ -239,15 +237,57 @@ M.dir_history = function(opts)
                 else
                     vim.g.base_search_dir = selection.value
                 end
-		M.keep_dir(vim.g.base_search_dir)
-	   	 vim.fn.setreg('l', vim.g.base_search_dir)
-		vim.notify(vim.g.base_search_dir,'info', {
-  			title = "base seach dir",
+				M.save_unique_string(vim.g.base_search_dir)
+				vim.notify(vim.g.base_search_dir,'info', {
+  					title = "base seach dir",
       			})
-		actions.close(prompt_bufnr)
+				actions.close(prompt_bufnr)
             end)
             return true
         end,
     }):find()
 end
+
+M.move_prev = function()
+	if vim.g.dir_stack_pt == nil then
+		vim.g.dir_stack_pt = #vim.g.dir_cache
+	end
+	vim.g.dir_stack_pt = vim.g.dir_stack_pt - 1
+	if vim.g.dir_stack_pt <= 0 then
+		vim.g.dir_stack_pt = 1
+      	vim.g.base_search_dir = vim.g.dir_cache[1] 
+		vim.notify(vim.g.base_search_dir,'info', {
+  			title = "base seach dir",
+      	})
+		return vim.g.dir_cache[1]
+	else
+      	vim.g.base_search_dir = vim.g.dir_cache[vim.g.dir_stack_pt] 
+		vim.notify(vim.g.base_search_dir,'info', {
+  			title = "base seach dir",
+      	})
+		return vim.g.dir_cache[vim.g.dir_stack_pt]
+	end
+end
+
+M.move_next = function()
+	if vim.g.dir_stack_pt == nil then
+		vim.g.dir_stack_pt = #vim.g.dir_cache
+	end
+	vim.g.dir_stack_pt = vim.g.dir_stack_pt + 1
+	if vim.g.dir_stack_pt > #vim.g.dir_cache then
+		vim.g.dir_stack_pt = #vim.g.dir_cache
+      	vim.g.base_search_dir = vim.g.dir_cache[#vim.g.dir_cache] 
+		vim.notify(vim.g.base_search_dir,'info', {
+  			title = "base seach dir",
+      	})
+		return vim.g.dir_cache[#vim.g.dir_cache]
+	else
+      	vim.g.base_search_dir = vim.g.dir_cache[vim.g.dir_stack_pt] 
+		vim.notify(vim.g.base_search_dir,'info', {
+  			title = "base seach dir",
+      	})
+		return vim.g.dir_cache[vim.g.dir_stack_pt]
+	end
+end
+
 return M
