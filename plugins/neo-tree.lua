@@ -6,6 +6,7 @@ return {
 
             local path = node:get_id()
             path = node.type == "directory" and path or vim.fn.fnamemodify(path, ":h")
+		path = path..'/'
 	    vim.fn.setreg('l', path)
 								require("user.select-dir").keep_dir(path)
 								vim.notify(path,'info', {

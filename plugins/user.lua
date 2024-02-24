@@ -14,6 +14,7 @@ return {
 		lazy = false,
 	},
 	  { "kkharji/sqlite.lua" },
+	  {"nvim-lua/plenary.nvim"},
 {
   "princejoogie/dir-telescope.nvim",
   -- telescope.nvim is a required dependency

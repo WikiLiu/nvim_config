@@ -125,6 +125,18 @@ return {
 			end,
 			desc = "modified search base directory",
 		},
+		["[<F2>"] = {
+			function ()
+				require("user.select-dir").dir_history()
+			end,
+			desc = "History of search directory",
+		},
+		["<leader>f<F2>"] = {
+			function ()
+				require("user.select-dir").dir_history()
+			end,
+			desc = "History of search directory",
+		},
 
   	},
 
