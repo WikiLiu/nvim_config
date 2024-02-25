@@ -115,7 +115,7 @@ return {
 				end
 				vim.notify(base_search_dir,'info', {
   					title = "base seach dir",
-      			}) 
+      			})
 			end,
 			desc = "show search base directory",
 		},
