@@ -5,9 +5,8 @@ local conf = require("telescope.config").values
 local finders = require("telescope.finders")
 local make_entry = require("telescope.make_entry")
 local pickers = require("telescope.pickers")
-
+local uv = vim.loop
 local flatten = vim.tbl_flatten
-
 local M = {}
 -- 之后可以加上cache到vim内存中
 local project_root = vim.fn.getcwd()
@@ -25,62 +24,118 @@ end
 		end
 	end
     table.insert(newT, str)
+	if #newT > 20 then
+		table.remove(newT,1)
+end
 	vim.g.dir_cache = newT
     
 end
 
+M.write_file = function(path, content)
+   uv.fs_open(path, "w", 438, function(open_err, fd)
+      assert(not open_err, open_err)
+      uv.fs_write(fd, content, -1, function(write_err)
+         assert(not write_err, write_err)
+         uv.fs_close(fd, function(close_err)
+            assert(not close_err, close_err)
+         end)
+      end)
+   end)
+end
 
+local function ensure_cache_directory_exists()
+    local cache_dir = vim.fn.expand('~/.cache')
+    local dir_history_file = cache_dir .. '/dir_search_history_vim.json'
 
-M.save_dir = function()
-	if vim.g.dir_cache == nil then
-		return
-	end
-    local cache_dir = project_root .. '/.cache'
-    local cache_file = cache_dir .. '/base_search_dir'
-
-    if not vim.fn.isdirectory(cache_dir) then
-        os.execute('mkdir -p ' .. cache_dir)
+    -- 创建缓存文件夹
+    if vim.fn.isdirectory(cache_dir) == 0 then
+        vim.fn.mkdir(cache_dir, 'p')
     end
-    -- 创建 .cache 目录
 
-    -- 打开文件进行写入
-    local f = io.open(cache_file, 'w')
-    if f then
-        for _, dir in ipairs(vim.g.dir_cache) do
-            f:write(dir .. '\n')
-        end
-        f:close()
-    else
-        print('Failed to open cache file for writing.')
+    -- 创建缓存文件
+    if vim.fn.filereadable(dir_history_file) == 0 then
+        M.write_file(dir_history_file,"")
     end
 end
 
+M.save_dir = function()
+	if vim.g.dir_cache == nil or #vim.g.dir_cache == 0 then
+		return
+	end
+	ensure_cache_directory_exists()
+    local dir_cache = vim.g.dir_cache
+    local current_dir = vim.fn.getcwd()
+    local cache_file = vim.fn.expand('~/.cache/dir_search_history_vim.json')
+    
+    local existing_data = {}
+
+    local f = io.open(cache_file, 'r')
+    if f then
+        local json_data = f:read('*a')
+    	f:close()
+        if json_data ~= '' then
+ 
+
+        local data = vim.json.decode(json_data)
+
+        if data ~= nil then
+        	for _, entry in ipairs(data) do
+    			local entry_dir = entry.current_dir
+
+    			if current_dir ~= entry_dir then
+        			table.insert(existing_data,entry)
+    			end
+
+			end
+        else
+            print('No directory history found for the current directory.')
+        end
+    else
+        print('No directory history found.')
+    end
+ end
+
+    local new_data = { current_dir = current_dir, dir_cache = vim.g.dir_cache }
+    table.insert(existing_data, new_data)
+
+    local json_data = vim.json.encode(existing_data)
+print("jason data"..json_data)
+	M.write_file(cache_file,json_data)
+end
+
 M.load_dir = function()
-    local cache_dir = project_root .. '/.cache'
-    local cache_file = cache_dir .. '/base_search_dir'
+	ensure_cache_directory_exists()
+    local current_dir = vim.fn.getcwd()
+    local cache_file = vim.fn.expand('~/.cache/dir_search_history_vim.json')
+	print(cache_file)
+    -- 读取文件内容
+     vim.g.dir_cache = {}
+    local f = io.open(cache_file, 'r')
+    if f then
+        local json_data = f:read('*a')
+    	f:close()
+        if json_data == '' then
+            return  -- 文件为空，直接返回
+        end
+        local data = vim.json.decode(json_data)
 
-    -- 检查文件是否存在
-    local f = io.open(cache_file, "r")
-    if not f then
-        -- 文件不存在，返回当前工作目录
-        return vim.fn.getcwd()
+        if data ~= nil then
+        	for _, entry in ipairs(data) do
+    			local entry_dir = entry.current_dir
+
+    			if current_dir == entry_dir then
+        			vim.g.dir_cache = entry.dir_cache
+        			break  -- 可以在找到匹配的目录后直接退出循环
+    			end
+			end
+        else
+            table.insert(vim.g.dir_cache,current_dir)
+            print('No directory history found for the current directory.')
+        end
+    else
+        print('No directory history found.')
     end
-    f:close()  -- 关闭文件句柄
-
-    -- 文件存在且不为空，读取文件内容
-    local lines = {}
-    for line in io.lines(cache_file) do
-        print(line)
-        lines[#lines + 1] = line
-    end
-
-    -- 如果文件内容为空，返回当前工作目录
-    if #lines == 0 or lines[#lines] == '' then
-        return vim.fn.getcwd()
-    end
-
-    vim.g.dir_cache = lines
-    return lines[#lines]
+    return vim.g.dir_cache[#vim.g.dir_cache]
 end
 
 
