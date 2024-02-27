@@ -13,7 +13,7 @@ local project_root = vim.fn.getcwd()
 
 
 M.save_unique_string = function(str)
-    -- 查找字符串在集合中的索引
+
 	local newT = {}
 for key, value in pairs(vim.g.dir_cache) do
     print(key, value)
@@ -28,8 +28,7 @@ end
 		table.remove(newT,1)
 end
 	vim.g.dir_cache = newT
-    
-end
+    end
 
 M.write_file = function(path, content)
    uv.fs_open(path, "w", 438, function(open_err, fd)
@@ -74,8 +73,6 @@ M.save_dir = function()
         local json_data = f:read('*a')
     	f:close()
         if json_data ~= '' then
- 
-
         local data = vim.json.decode(json_data)
 
         if data ~= nil then
@@ -135,6 +132,9 @@ M.load_dir = function()
     else
         print('No directory history found.')
     end
+if vim.g.dir_cache == nil then
+table.insert(vim.g.dir_cache,current_dir)
+end
     return vim.g.dir_cache[#vim.g.dir_cache]
 end
 

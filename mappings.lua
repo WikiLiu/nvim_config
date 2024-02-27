@@ -43,7 +43,7 @@ return {
 					base_search_dir = require("user.select-dir").load_dir()
 				end
 	  			local word_under_cursor = vim.fn.expand("<cword>")
-  	   			require('telescope').extensions.live_grep_args.live_grep_args({default_text = word_under_cursor , search_dirs = {base_search_dir}})
+  	   			require('telescope').extensions.live_grep_args.live_grep_args({default_text = word_under_cursor , search_dirs = {base_search_dir}, postfix = '--fixed-strings'})
       		end,
       		desc = "Find cursor word in path folder",
 		},
@@ -55,7 +55,7 @@ return {
 				if base_search_dir==nil or base_search_dir == '' then
 					base_search_dir = require("user.select-dir").load_dir()
 				end
-  	  			require('telescope').extensions.live_grep_args.live_grep_args({search_dirs = {base_search_dir}})
+  	  			require('telescope').extensions.live_grep_args.live_grep_args({search_dirs = {base_search_dir},  postfix = '--fixed-strings'})
       		end,
       		desc = "Find word in path folder",
 		},
