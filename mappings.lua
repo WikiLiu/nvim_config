@@ -113,9 +113,16 @@ return {
 					base_search_dir = require("user.select-dir").load_dir()
 
 				end
+				if base_search_dir ~= nil then
 				vim.notify(base_search_dir,'info', {
   					title = "base seach dir",
       			})
+				else
+				vim.notify("Null",'info', {
+  					title = "base seach dir",
+      			})
+				end
+				
 			end,
 			desc = "show search base directory",
 		},
@@ -151,7 +158,7 @@ return {
     	-- ["<esc>"] = false,
   	},
 	v = {
-		["f"] = {
+		["<leader>f"] = {
       		function()
 				local base_search_dir = vim.g.base_search_dir
 

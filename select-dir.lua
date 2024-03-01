@@ -96,7 +96,6 @@ M.save_dir = function()
     table.insert(existing_data, new_data)
 
     local json_data = vim.json.encode(existing_data)
-print("jason data"..json_data)
 	M.write_file(cache_file,json_data)
 end
 
@@ -104,7 +103,6 @@ M.load_dir = function()
 	ensure_cache_directory_exists()
     local current_dir = vim.fn.getcwd()
     local cache_file = vim.fn.expand('~/.cache/dir_search_history_vim.json')
-	print(cache_file)
     -- 读取文件内容
      vim.g.dir_cache = {}
     local f = io.open(cache_file, 'r')

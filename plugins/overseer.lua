@@ -2,6 +2,7 @@
 	return {
 		'stevearc/overseer.nvim',
 		cmd="OverseerRun",
+		lazy = true,
 		config = function()
 			require('overseer').setup({
 			strategy = {
