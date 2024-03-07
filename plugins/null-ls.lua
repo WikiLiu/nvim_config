@@ -12,10 +12,10 @@ return {
       -- null_ls.builtins.formatting.stylua,
       -- null_ls.builtins.formatting.prettier,
 -- CPP
-      null_ls.builtins.diagnostics.cpplint.with({
-	command = '/usr/bin/cpplint',
-        args = { "--linelength=120", "--filter=-whitespace/tab,-whitespace/braces,-readability/casting,-whitespace/parens,-whitespace/braces", "$FILENAME", },
-      }),
+--      null_ls.builtins.diagnostics.cpplint.with({
+--	command = '/usr/bin/cpplint',
+--        args = { "--linelength=120", "--filter=-whitespace/tab,-whitespace/braces,-readability/casting,-whitespace/parens,-whitespace/braces", "$FILENAME", },--
+--      }),
     }
     return config -- return final config table
   end,
