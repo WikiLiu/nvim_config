@@ -4,48 +4,40 @@ local has_words_before = function()
   return col ~= 0 and vim.api.nvim_buf_get_text(0, line-1, 0, line-1, col, {})[1]:match("^%s*$") == nil
 end
 
-return {
-
-  -- copilot
-  {
-    "zbirenbaum/copilot.lua",
-    cmd = "Copilot",
-    build = ":Copilot auth",
-    opts = {
-      suggestion = { enabled = false },
-      panel = { enabled = false },
-      filetypes = {
-    markdown = true, -- overrides default
-    terraform = false, -- disallow specific filetype
-    sh = function ()
-      if string.match(vim.fs.basename(vim.api.nvim_buf_get_name(0)), '^%.env.*') then
-        -- disable for .env files
-        return false
-      end
-      return true
-    end,
-      },
-    },
-  },
-  {
-    "nvim-lualine/lualine.nvim",
-    optional = true,
-    event = "VeryLazy",
-    opts = function(_, opts)
-      local Util = require("lazyvim.util")
+local function lazy_fg(name)
+  ---@type {foreground?:number}?
+  ---@diagnostic disable-next-line: deprecated
+  local hl = vim.api.nvim_get_hl and vim.api.nvim_get_hl(0, { name = name, link = false })
+    or vim.api.nvim_get_hl_by_name(name, true)
+  ---@diagnostic disable-next-line: undefined-field
+  local fg = hl and (hl.fg or hl.foreground)
+  return fg and { fg = string.format("#%06x", fg) } or nil
+end
+local status_utils = require "astronvim.utils.status.utils"
+local utils = require "astronvim.utils"
+local extend_tbl = utils.extend_tbl
+local hl = require "astronvim.utils.status.hl"
+local init = require "astronvim.utils.status.init"
+function copilot_status(opts)
       local colors = {
-        [""] = Util.ui.fg("Special"),
-        ["Normal"] = Util.ui.fg("Special"),
-        ["Warning"] = Util.ui.fg("DiagnosticError"),
-        ["InProgress"] = Util.ui.fg("DiagnosticWarn"),
+        [""] = lazy_fg("Special"),
+        ["Normal"] = lazy_fg("Special"),
+        ["Warning"] = lazy_fg("DiagnosticError"),
+        ["InProgress"] = lazy_fg("DiagnosticWarn"),
       }
-      table.insert(opts.sections.lualine_x, 2, {
-        function()
-          local icon = require("lazyvim.config").icons.kinds.Copilot
+    print(require("copilot.api").status.data.message)
+  opts = extend_tbl({
+    copilot_status = { str = require("copilot.api").status.data.message, icon = { kind = "Copilot", padding = { right = 1 } } },
+    surround = {
+      separator = "right",
+      color = function()
+          if not package.loaded["copilot"] then
+            return
+          end
           local status = require("copilot.api").status.data
-          return icon .. (status.message or "")
+          return colors[status.status] or colors[""]
         end,
-        cond = function()
+      condition = function()
           if not package.loaded["copilot"] then
             return
           end
@@ -54,22 +46,39 @@ return {
             return false
           end
           return ok and #clients > 0
-        end,
-        color = function()
-          if not package.loaded["copilot"] then
-            return
-          end
-          local status = require("copilot.api").status.data
-          return colors[status.status] or colors[""]
-        end,
-      })
-    end,
+        end
+    },
+    hl = hl.get_attributes "treesitter",
+    update = { "OptionSet", pattern = "syntax" },
+    init = init.update_events { "InsertEnter", "LspAttach"},
+  }, opts)
+  return status_utils.setup_providers(opts, { "copilot_status" })
+end
+
+
+
+return {
+
+    -- copilot
+  {
+    "zbirenbaum/copilot.lua",
+    cmd = "Copilot",
+    build = ":Copilot auth",
+    opts = {
+      suggestion = { enabled = false },
+      panel = { enabled = false },
+      filetypes = {
+        markdown = true,
+        help = true,
+      },
+    },
   },
+
 
   -- copilot cmp source
   {
     "nvim-cmp",
-	event = { "InsertEnter", "LspAttach" },
+    event = { "InsertEnter", "LspAttach" },
     dependencies = {
       {
         "zbirenbaum/copilot-cmp",
@@ -117,8 +126,16 @@ opts.mapping["<Tab>"] = vim.schedule_wrap(function(fallback)
 
     end,
 
-
-
-
   },
+
+
+  -- {
+  -- "rebelot/heirline.nvim",
+  -- event = "BufEnter",
+  --   opts = function(_, opts)
+  --     table.insert(opts.statusline,11, copilot_status())
+  --     return opts
+  --   end,
+  -- },
+  --
 }

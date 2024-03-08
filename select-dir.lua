@@ -15,9 +15,6 @@ local project_root = vim.fn.getcwd()
 M.save_unique_string = function(str)
 
 	local newT = {}
-for key, value in pairs(vim.g.dir_cache) do
-    print(key, value)
-end 
 	for _ ,v in ipairs(vim.g.dir_cache) do
 		if v ~= str then
 			table.insert(newT , v)
